@@ -21,8 +21,15 @@ st.subheader("Sales 2023 Report:")
 ##################
 db=pd.read_excel('Database-2022.xlsx')
 #################
-url="https://docs.google.com/spreadsheets/d/1sUH0WmtfrWbR8FrM33ljebSlW0BWE3w0/export?format=xlsx"
-Invoices=pd.read_excel(url,header=4)
+@st.cache(allow_output_mutation=True)
+def load_data_from_drive():
+    url="https://docs.google.com/spreadsheets/d/1sUH0WmtfrWbR8FrM33ljebSlW0BWE3w0/export?format=xlsx"
+    data=pd.read_excel(url,header=4)
+    return data
+data = load_data_from_drive()
+Invoices=data
+# url="https://docs.google.com/spreadsheets/d/1sUH0WmtfrWbR8FrM33ljebSlW0BWE3w0/export?format=xlsx"
+# Invoices=pd.read_excel(url,header=4)
 Invoices[['วันที่','ลูกค้า','ชื่อสินค้า']]=Invoices[['วันที่','ลูกค้า','ชื่อสินค้า']].astype(str)
 Inv=Invoices[['วันที่','ลูกค้า','ชื่อสินค้า','จำนวน','มูลค่าสินค้า','รหัสสินค้า']]
 # def to_str(x):
@@ -155,3 +162,5 @@ fig.update_layout(title_text='Sales-2023 Report by BU Items:', xaxis_title='Cate
 
 # Show the plot
 st.plotly_chart(fig)
+if st.button("Refresh data"):
+    data = load_data_from_drive()
