@@ -85,7 +85,7 @@ Invoices['รหัสสินค้า'].astype(str).str.contains('PART')|
 Invoices['รหัสสินค้า'].astype(str).str.contains('REPAIR')]
 TotalMOLD=TotalMOLD[TotalMOLD['วันที่'].between( YMInput, YMInput2)]
 ######################## Other ###############################
-TotalOTHER=Invoices[Invoices['ชื่อสินค้า'].str.contains('DENSE')|Invoices['ชื่อสินค้า'].str.contains('RTV')|Invoices['ชื่อสินค้า'].str.contains('ตู้จำหน่าย')]
+TotalOTHER=Invoices[Invoices['ชื่อสินค้า'].str.contains('DENSE')|Invoices['ชื่อสินค้า'].str.contains('RTV')|Invoices['ชื่อสินค้า'].str.contains('ตู้')]
 TotalOTHER=TotalOTHER[TotalOTHER['วันที่'].between( YMInput, YMInput2)]
 ####################### Cash ##################################
 SalesCash=SalesCash[SalesCash['วันที่'].between( YMInput, YMInput2)]
