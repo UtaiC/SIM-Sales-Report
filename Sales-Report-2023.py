@@ -40,8 +40,8 @@ DayCount=DayCount[DayCount.str.contains('2023-01')]
 DayCount=DayCount.drop_duplicates()
 COUNT=DayCount.count()
 ############# Cash #############
-SalesCash=pd.read_excel("HS2022.xlsx",header=5)
-SalesCash['วันที่']=SalesCash['วันที่'].astype(str)
+SalesCash=Invoices[Invoices['ชื่อสินค้า'].str.contains('ขี้กลึงเหล็ก')|Invoices['ชื่อสินค้า'].str.contains('ขี้เตา')|Invoices['ชื่อสินค้า'].str.contains('เศษเหล็ก')
+|Invoices['ชื่อสินค้า'].str.contains('ขี้กลึงอลูมิเนียม')]
 ############################################
 last_update = DayCount.max()
 st.write("Last update:", last_update)
