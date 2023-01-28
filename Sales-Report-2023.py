@@ -118,7 +118,7 @@ SUMSALES.set_index('Items',inplace=True)
 ############# Target ######################################################
 Target2023=pd.read_excel('Target-2023.xlsx')
 Target2023=Target2023[Minput]
-Target2023=(Target2023/20.8)*COUNT
+Target2023=(Target2023/23)*COUNT
 Target2023=list(Target2023)
 ############################################################################
 start_date = Minput
