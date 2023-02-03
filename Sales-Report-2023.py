@@ -36,7 +36,7 @@ Inv=Invoices[['วันที่','ลูกค้า','ชื่อสิน�
 #     return str(x)
 # Invoices['รหัสสินค้า'] = Invoices['รหัสสินค้า'].apply(to_str)
 DayCount=Invoices['วันที่']
-DayCount=DayCount[DayCount.str.contains('2023-01')]
+DayCount=DayCount[DayCount.str.contains('2023-02')]
 DayCount=DayCount.drop_duplicates()
 COUNT=DayCount.count()
 ############# Cash #############
