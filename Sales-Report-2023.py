@@ -17,7 +17,8 @@ from dateutil import parser
 ############
 Logo=Image.open('SIM-LOGO-02.jpg')
 st.image(Logo,width=700)
-st.subheader("Sales 2023 Report:")
+st.markdown("<h2 style='text-align: center; color:#F1F0E5'>Sales Report 2023 </h2>",unsafe_allow_html=True)
+# st.subheader("Sales 2023 Report:")
 ##################
 db=pd.read_excel('Database-2022.xlsx')
 #################
@@ -28,25 +29,19 @@ def load_data_from_drive():
     return data
 data = load_data_from_drive()
 Invoices=data
+
 # url="https://docs.google.com/spreadsheets/d/1sUH0WmtfrWbR8FrM33ljebSlW0BWE3w0/export?format=xlsx"
 # Invoices=pd.read_excel(url,header=4)
-Invoices[['วันที่','ลูกค้า','ชื่อสินค้า']]=Invoices[['วันที่','ลูกค้า','ชื่อสินค้า']].astype(str)
+Invoices[['วันที่','เลขที่','ลูกค้า','ชื่อสินค้า']]=Invoices[['วันที่','เลขที่','ลูกค้า','ชื่อสินค้า']].astype(str)
 Invoices=Invoices[(~Invoices['รหัสสินค้า'].astype(str).str.contains('MOLD-T0'))]
-Inv=Invoices[['วันที่','ลูกค้า','ชื่อสินค้า','จำนวน','มูลค่าสินค้า','รหัสสินค้า']]
-# def to_str(x):
-#     return str(x)
-# Invoices['รหัสสินค้า'] = Invoices['รหัสสินค้า'].apply(to_str)
-DayCount=Invoices['วันที่']
-DayCount=DayCount[DayCount.str.contains('2023-02')]
-DayCount=DayCount.drop_duplicates()
-COUNT=DayCount.count()
-############# Cash #############
-SalesCash=Invoices[Invoices['ชื่อสินค้า'].str.contains('ขี้กลึงเหล็ก')|Invoices['ชื่อสินค้า'].str.contains('ขี้เตา')|Invoices['ชื่อสินค้า'].str.contains('เศษเหล็ก')
-|Invoices['ชื่อสินค้า'].str.contains('ขี้กลึงอลูมิเนียม')]
-############################################
-last_update = DayCount.max()
-st.write("Last update:", last_update)
-st.write('Invoice Isuued Days:',COUNT)
+Inv=Invoices[['วันที่','เลขที่','ลูกค้า','ชื่อสินค้า','จำนวน','มูลค่าสินค้า','รหัสสินค้า']]
+Inv=Invoices[Invoices['เลขที่'].str.contains('IV')|Invoices['เลขที่'].str.contains('HS')]
+
+###################### Total Invoice Check #################################################
+Inv['มูลค่าสินค้า']= pd.to_numeric(Inv['มูลค่าสินค้า'], errors='coerce')
+Inv['มูลค่าสินค้า'].dropna(0, inplace=True)
+TTSales=Inv['มูลค่าสินค้า']
+TTSales=TTSales.sum()
 ################ Select ############################
 MonthSelected=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
@@ -65,12 +60,28 @@ Minput2=st.selectbox('Range of MonthSelected',MonthSelected, key='unique-key-2')
 MAPYM2={'Month':['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']}
 YMAP2={'Jan':'2023-01-31','Feb':'2023-02-28','Mar':'2023-03-31','Apr':'2023-04-30','May':'2023-05-31','Jun':'2023-06-30','Jul':'2023-07-31',
 'Aug':'2023-08-31','Sep':'2023-09-30','Oct':'2023-10-31','Nov':'2023-11-30','Dec':'2023-12-31'}
+for key, value in YMAP2.items():
+    YMAP2[key] = pd.to_datetime(value) + pd.Timedelta(days=1)
 MAPYM2=pd.DataFrame(MAPYM2)
 MAPYM2['Year']=MAPYM2['Month'].map(YMAP2)
 MAPYM2=MAPYM2[MAPYM2['Month']==Minput2]
 Y2=MAPYM2['Year'].to_string(index=False)
 YMInput2=Y2
 Y2
+#########################################################
+DayCount=Invoices['วันที่']
+DayCount=DayCount[DayCount.str.contains('2023-02')]
+DayCount=DayCount.drop_duplicates()
+COUNT=DayCount.count()
+############# Cash #############
+SalesCash=Invoices[Invoices['ชื่อสินค้า'].str.contains('ขี้กลึงเหล็ก')|Invoices['ชื่อสินค้า'].str.contains('ขี้เตา')|Invoices['ชื่อสินค้า'].str.contains('เศษเหล็ก')
+|Invoices['ชื่อสินค้า'].str.contains('ขี้กลึงอลูมิเนียม')]
+# SalesCash=pd.read_excel("HS2022.xlsx",header=5)
+# SalesCash['วันที่']=SalesCash['วันที่'].astype(str)
+############################################
+last_update = DayCount.max()
+st.write("Last update:", last_update)
+st.write('Invoice Isuued Days:',COUNT)
 ###################### MASS ################################
 TotalMASS=Invoices[Invoices['ลูกค้า'].str.contains('VALEO')|Invoices['ลูกค้า'].str.contains('แครทโค')|Invoices['ชื่อสินค้า'].str.contains('PACKING')|
 Invoices['ลูกค้า'].str.contains('เซนทรัล')]
@@ -104,7 +115,7 @@ TotalSaleSTB=TotalSTB['มูลค่าสินค้า'].sum()
 TotalSalesOTHER=TotalOTHER['มูลค่าสินค้า'].sum()
 TotalSalesMOLD=(TotalMOLD['มูลค่าสินค้า'].sum())+(TotalMoldPM+TotalMoldDP)
 TotalSales=(TotalSaleCASH+TotalSalesMASS+TotalSaleSTB+TotalSalesOTHER+TotalSalesMOLD)
-
+st.write('Total Sales Invoices:',round(TTSales,2))
 st.write('Total MASS BU Sales:',round(TotalSalesMASS,2))
 st.write('Total Steel Bush Sales:',round(TotalSaleSTB,2))
 st.write('Total Mold BU Sales:',round(TotalSalesMOLD,2))
@@ -119,7 +130,7 @@ SUMSALES.set_index('Items',inplace=True)
 ############# Target ######################################################
 Target2023=pd.read_excel('Target-2023.xlsx')
 Target2023=Target2023[Minput]
-Target2023=(Target2023/24)*COUNT
+Target2023=(Target2023/23)*COUNT
 Target2023=list(Target2023)
 ############################################################################
 start_date = Minput
@@ -163,5 +174,6 @@ fig.update_layout(title_text='Sales-2023 Report by BU Items:', xaxis_title='Cate
 
 # Show the plot
 st.plotly_chart(fig)
+
 if st.button("Refresh data"):
     data = load_data_from_drive()
