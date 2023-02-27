@@ -31,6 +31,7 @@ Invoices=data
 # url="https://docs.google.com/spreadsheets/d/1sUH0WmtfrWbR8FrM33ljebSlW0BWE3w0/export?format=xlsx"
 # Invoices=pd.read_excel(url,header=4)
 Invoices[['วันที่','ลูกค้า','ชื่อสินค้า']]=Invoices[['วันที่','ลูกค้า','ชื่อสินค้า']].astype(str)
+Invoices=Invoices[(~Invoices['รหัสสินค้า'].astype(str).str.contains('MOLD-T0'))]
 Inv=Invoices[['วันที่','ลูกค้า','ชื่อสินค้า','จำนวน','มูลค่าสินค้า','รหัสสินค้า']]
 # def to_str(x):
 #     return str(x)
