@@ -70,7 +70,7 @@ YMInput2=Y2
 Y2
 #########################################################
 DayCount=Invoices['วันที่']
-DayCount=DayCount[DayCount.str.contains('2023-02')]
+DayCount=DayCount[DayCount.str.contains('2023-03')]
 DayCount=DayCount.drop_duplicates()
 COUNT=DayCount.count()
 ############# Cash #############
@@ -130,7 +130,7 @@ SUMSALES.set_index('Items',inplace=True)
 ############# Target ######################################################
 Target2023=pd.read_excel('Target-2023.xlsx')
 Target2023=Target2023[Minput]
-Target2023=(Target2023/23)*COUNT
+Target2023=(Target2023/25)*COUNT
 Target2023=list(Target2023)
 ############################################################################
 start_date = Minput
