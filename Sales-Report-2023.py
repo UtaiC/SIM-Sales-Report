@@ -34,6 +34,7 @@ Invoices=data
 # Invoices=pd.read_excel(url,header=4)
 Invoices[['วันที่','เลขที่','ลูกค้า','ชื่อสินค้า']]=Invoices[['วันที่','เลขที่','ลูกค้า','ชื่อสินค้า']].astype(str)
 Invoices=Invoices[(~Invoices['รหัสสินค้า'].astype(str).str.contains('MOLD-T0'))]
+Invoices=Invoices[(~Invoices['รหัสสินค้า'].astype(str).str.contains('MOLD-T1'))]
 Inv=Invoices[['วันที่','เลขที่','ลูกค้า','ชื่อสินค้า','จำนวน','มูลค่าสินค้า','รหัสสินค้า']]
 Inv=Invoices[Invoices['เลขที่'].str.contains('IV')|Invoices['เลขที่'].str.contains('HS')]
 
