@@ -37,7 +37,10 @@ Invoices=Invoices[(~Invoices['รหัสสินค้า'].astype(str).str.c
 Invoices=Invoices[(~Invoices['รหัสสินค้า'].astype(str).str.contains('MOLD-T1'))]
 Inv=Invoices[['วันที่','เลขที่','ลูกค้า','ชื่อสินค้า','จำนวน','มูลค่าสินค้า','รหัสสินค้า']]
 Inv=Invoices[Invoices['เลขที่'].str.contains('IV')|Invoices['เลขที่'].str.contains('HS')]
-
+# TTCN=Invoices[Invoices['เลขที่'].str.contains('SR')]
+# TTCN[['ลูกค้า','มูลค่าสินค้า']]
+# TTDN=Invoices[Invoices['รหัสสินค้า'].str.contains('DR')]
+# TTDN[['ลูกค้า','มูลค่าสินค้า']]
 ###################### Total Invoice Check #################################################
 Inv['มูลค่าสินค้า']= pd.to_numeric(Inv['มูลค่าสินค้า'], errors='coerce')
 Inv['มูลค่าสินค้า'].dropna(0, inplace=True)
@@ -88,7 +91,6 @@ TotalMASS=Invoices[Invoices['ลูกค้า'].str.contains('VALEO')|Invoices
 Invoices['ลูกค้า'].str.contains('เซนทรัล')]
 TotalMASS=TotalMASS[TotalMASS['วันที่'].between( YMInput, YMInput2)]
 TotalMASS=pd.merge(TotalMASS,db[['Part_No','Mold-PM','Mold-DP']],left_on='รหัสสินค้า',right_on='Part_No',how='left')
-
 ####################### Steel Bush ################################
 TotalSTB=Invoices[Invoices['ชื่อสินค้า'].str.contains('STEEL')]
 TotalSTB = TotalSTB[TotalSTB['วันที่'].between( YMInput, YMInput2)]
@@ -134,6 +136,53 @@ Target2023=Target2023[Minput]
 Target2023=(Target2023/25)*COUNT
 Target2023=list(Target2023)
 ############################################################################
+st.write('---')
+st.write('**Credit Note Details-MASS**')
+TotalMASSCN = TotalMASS[TotalMASS['เลขที่'].str.contains('SR')]
+TotalMASSCN[['ลูกค้า', 'มูลค่าสินค้า']]
+TotalMASSCN = TotalMASSCN[['ลูกค้า', 'มูลค่าสินค้า']].groupby('ลูกค้า').sum()
+MASSCN = 0  # initialize MASSCN to 0
+try:
+    MASSCN = round(TotalMASSCN['มูลค่าสินค้า'].sum(),2)
+except KeyError:
+    pass  # do nothing if key error occurs
+st.write('Total Credit Note Details-MASS:', MASSCN)
+st.write('---')
+st.write('**Credit Note Details-MOLD**')
+TotalMoldCN = TotalMOLD[TotalMOLD['เลขที่'].str.contains('SR')]
+TotalMoldCN[['ลูกค้า', 'มูลค่าสินค้า']]
+TotalMoldCN = TotalMoldCN[['ลูกค้า', 'มูลค่าสินค้า']].groupby('ลูกค้า').sum()
+MOLDCN = 0  # initialize MOLDCN to 0
+try:
+    MOLDCN = round(TotalMoldCN['มูลค่าสินค้า'].sum(),2)
+except KeyError:
+    pass  # do nothing if key error occurs
+st.write('Total Credit Note Details-MOLD:', MOLDCN)
+st.write('---')
+##########################################################################
+st.write('**Debit Note Details-MASS**')
+TotalMASSDN = TotalMASS[TotalMASS['เลขที่'].str.contains('DR')]
+TotalMASSDN[['ลูกค้า', 'มูลค่าสินค้า']]
+TotalMASSDN = TotalMASSDN[['ลูกค้า', 'มูลค่าสินค้า']].groupby('ลูกค้า').sum()
+MASSDN = 0  # initialize MASSDN to 0
+try:
+    MASSDN = round(TotalMASSDN['มูลค่าสินค้า'].sum(),2)
+except KeyError:
+    pass  # do nothing if key error occurs
+st.write('Total Debit Note Details-MASS:', MASSDN)
+st.write('---')
+st.write('**Debit Note Details-MOLD**')
+TotalMoldDN = TotalMOLD[TotalMOLD['เลขที่'].str.contains('DR')]
+TotalMoldDN[['ลูกค้า', 'มูลค่าสินค้า']]
+TotalMoldDN = TotalMoldDN[['ลูกค้า', 'มูลค่าสินค้า']].groupby('ลูกค้า').sum()
+MOLDDN = 0  # initialize MOLDDN to 0
+try:
+    MOLDDN = round(TotalMoldDN['มูลค่าสินค้า'].sum(),2)
+except KeyError:
+    pass  # do nothing if key error occurs
+st.write('Total Debit Note Details-MOLD:', MOLDDN)
+st.write('---')
+############################################################################
 start_date = Minput
 end_date = Minput2
 start_date = parser.parse(start_date)
@@ -142,7 +191,7 @@ num_months = (end_date.year - start_date.year) * 12 + end_date.month - start_dat
 
 # Define the data for the bar chart
 categories = ['One-SIM','MASS','Mold','Steel Bush','Cash','Other']
-values = [TotalSales+TotalSaleCASH, TotalSalesMASS,TotalSalesMOLD,TotalSaleSTB,TotalSaleCASH,(TotalSalesOTHER)]
+values = [TotalSales+TotalSaleCASH, TotalSalesMASS+(MASSCN+MASSDN),TotalSalesMOLD+(MOLDCN+MOLDDN),TotalSaleSTB,TotalSaleCASH,(TotalSalesOTHER)]
 # values2 = [((19166666.66/(250/12))*COUNT),((13940823/(250/12))*COUNT),((954000/(250/12))*COUNT),((4350374.17/(250/12))*COUNT),0,0]
 values2 =Target2023
 # Use num_months as the monthly factor to multiply the values in values and values2
