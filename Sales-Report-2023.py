@@ -73,7 +73,7 @@ Y2=MAPYM2['Year'].to_string(index=False)
 YMInput2=Y2
 Y2
 #########################################################
-ym_Count = ym_input[:7]
+ym_Count = Y[:7]
 DayCount=Invoices['วันที่']
 DayCount=DayCount[DayCount.str.contains(ym_Count)]
 DayCount=DayCount.drop_duplicates()
@@ -135,8 +135,8 @@ SUMSALES.set_index('Items',inplace=True)
 from pandas.tseries.offsets import BDay
 
 # specify the start and end dates for the date range
-start_date = ym_input
-end_date = ym_input2
+start_date = Y
+end_date = Y2
 
 # create a pandas date range for the specified date range
 date_range = pd.date_range(start=start_date, end=end_date)
