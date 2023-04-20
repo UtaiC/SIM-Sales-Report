@@ -73,8 +73,9 @@ Y2=MAPYM2['Year'].to_string(index=False)
 YMInput2=Y2
 Y2
 #########################################################
+ym_Count = ym_input[:7]
 DayCount=Invoices['วันที่']
-DayCount=DayCount[DayCount.str.contains('2023-04')]
+DayCount=DayCount[DayCount.str.contains(ym_Count)]
 DayCount=DayCount.drop_duplicates()
 COUNT=DayCount.count()
 ############# Cash #############
@@ -131,9 +132,23 @@ DATASALES=[['One-SIM',TotalSales],['MASS',TotalSalesMASS],['Steel Bush',TotalSal
 SUMSALES=pd.DataFrame(DATASALES,columns=['Items','AMT'])
 SUMSALES.set_index('Items',inplace=True)
 ############# Target ######################################################
+from pandas.tseries.offsets import BDay
+
+# specify the start and end dates for the date range
+start_date = ym_input
+end_date = ym_input2
+
+# create a pandas date range for the specified date range
+date_range = pd.date_range(start=start_date, end=end_date)
+
+# filter out non-business days using the BDay frequency
+business_days = date_range[date_range.weekday < 5]
+
+# print the resulting number of business days
+Days = len(business_days)
 Target2023=pd.read_excel('Target-2023.xlsx')
 Target2023=Target2023[Minput]
-Target2023=(Target2023/15)*COUNT
+Target2023=(Target2023/Days)*COUNT
 Target2023=list(Target2023)
 ############################################################################
 st.write('---')
