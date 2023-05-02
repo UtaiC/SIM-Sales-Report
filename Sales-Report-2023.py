@@ -113,7 +113,7 @@ ONESIM
 TotalMoldPM=(TotalMASS['จำนวน']*TotalMASS['Mold-PM']).sum()
 TotalMoldDP=(TotalMASS['จำนวน']*TotalMASS['Mold-DP']).sum()
 TotalSaleCASH=SalesCash['มูลค่าสินค้า'].sum()
-TotalSalesMASS=((TotalMASS['มูลค่าสินค้า'].sum())
+TotalSalesMASS=(TotalMASS['มูลค่าสินค้า'].sum())
 TotalSaleSTB=TotalSTB['มูลค่าสินค้า'].sum()
 TotalSalesOTHER=TotalOTHER['มูลค่าสินค้า'].sum()
 TotalSalesMOLD=(TotalMOLD['มูลค่าสินค้า'].sum())
@@ -213,6 +213,10 @@ try:
 except KeyError:
     pass  # do nothing if key error occurs
 st.write('Total Debit Note Details-MOLD:', MOLDDN)
+MASSCNDNBL=MASSCN+MASSDN
+st.write('Balance MASS CN/DN:',MASSCNDNBL)
+MOLDCNDNBL=MOLDCN+MOLDDN
+st.write('Balance MOLD CN/DN:',MOLDCNDNBL)
 st.write('---')
 ############################################################################
 start_date = Minput
@@ -223,8 +227,10 @@ num_months = (end_date.year - start_date.year) * 12 + end_date.month - start_dat
 
 # Define the data for the bar chart
 categories = ['One-SIM','MASS','Mold','Steel Bush','Cash','Other']
-values = [TotalSales+TotalSaleCASH, TotalSalesMASS,TotalSalesMOLD,TotalSaleSTB,TotalSaleCASH,(TotalSalesOTHER)]
+values = [TotalSales+TotalSaleCASH, TotalSalesMASS,TotalSalesMOLD,TotalSaleSTB,TotalSaleCASH,TotalSalesOTHER]
 values2 =Target2023
+
+
 # Use num_months as the monthly factor to multiply the values in values and values2
 monthly_factor = num_months
 for i in range(len(values2)):
@@ -234,10 +240,12 @@ today = datetime.datetime.today().strftime('%Y-%m-%d')
 
 labels = [f"{value:,.0f}" for value in values]
 labels2 = [f"{value:,.0f}" for value in values2]
+
 # Create the bar chart
 trace1 = go.Bar(x=categories, y=values, name='Actual',text=labels, textposition='auto')
 # trace2 = go.Bar(x=categories, y=values2, name='Target',text=labels2, textposition='auto')
 trace2 = go.Scatter(x=categories, y=values2, name='Target', text=labels2, textposition='top center',line=dict(color='orange'))
+
 ############################
 fig = go.Figure(data=[go.Bar(x=categories, y=values, text=labels, textposition='auto')])
 fig = go.Figure(data=[go.Bar(x=categories, y=values2, text=labels2, textposition='auto')])
@@ -249,7 +257,6 @@ fig = go.Figure(data=data)
 fig.update_layout(title_text='Chart of Sales by BU Items', xaxis_title='Category', yaxis_title='Value')
 fig.add_annotation(go.Annotation(text=f"Report date: {last_update}", x=0.900, xref="paper", y=1, yref="paper"))
 fig.update_layout(title_text='Sales-2023 Report by BU Items:', xaxis_title='Category', yaxis_title='Value')
-
 # Show the plot
 st.plotly_chart(fig)
 
