@@ -113,10 +113,10 @@ ONESIM
 TotalMoldPM=(TotalMASS['จำนวน']*TotalMASS['Mold-PM']).sum()
 TotalMoldDP=(TotalMASS['จำนวน']*TotalMASS['Mold-DP']).sum()
 TotalSaleCASH=SalesCash['มูลค่าสินค้า'].sum()
-TotalSalesMASS=((TotalMASS['มูลค่าสินค้า'].sum())-(TotalMoldPM+TotalMoldDP))
+TotalSalesMASS=((TotalMASS['มูลค่าสินค้า'].sum())
 TotalSaleSTB=TotalSTB['มูลค่าสินค้า'].sum()
 TotalSalesOTHER=TotalOTHER['มูลค่าสินค้า'].sum()
-TotalSalesMOLD=(TotalMOLD['มูลค่าสินค้า'].sum())+(TotalMoldPM+TotalMoldDP)
+TotalSalesMOLD=(TotalMOLD['มูลค่าสินค้า'].sum())
 TotalSales=(TotalSaleCASH+TotalSalesMASS+TotalSaleSTB+TotalSalesOTHER+TotalSalesMOLD)
 st.write('Total Sales Invoices:',round(TTSales,2))
 st.write('Total MASS BU Sales:',round(TotalSalesMASS,2))
@@ -223,7 +223,7 @@ num_months = (end_date.year - start_date.year) * 12 + end_date.month - start_dat
 
 # Define the data for the bar chart
 categories = ['One-SIM','MASS','Mold','Steel Bush','Cash','Other']
-values = [TotalSales+TotalSaleCASH, TotalSalesMASS+(MASSCN+MASSDN),TotalSalesMOLD+(MOLDCN+MOLDDN),TotalSaleSTB,TotalSaleCASH,(TotalSalesOTHER)]
+values = [TotalSales+TotalSaleCASH, TotalSalesMASS,TotalSalesMOLD,TotalSaleSTB,TotalSaleCASH,(TotalSalesOTHER)]
 values2 =Target2023
 # Use num_months as the monthly factor to multiply the values in values and values2
 monthly_factor = num_months
