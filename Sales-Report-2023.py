@@ -14,7 +14,27 @@ import datetime
 from datetime import time
 import calendar
 from dateutil import parser
-############
+from pandas.tseries.offsets import BDay
+##################
+############ Format #######################
+# def format_dataframe_columns(df):
+#     formatted_df = df.copy()  # Create a copy of the DataFrame
+#     for column in formatted_df.columns:
+#         if formatted_df[column].dtype == 'float64':  # Check if column has a numeric type
+#             formatted_df[column] = formatted_df[column].apply(lambda x: '{:,.2f}'.format(x))
+#     return formatted_df
+def format_dataframe_columns(df):
+    formatted_df = df.copy()  # Create a copy of the DataFrame
+    for column in formatted_df.columns:
+        if formatted_df[column].dtype == 'float64':  # Check if column has a numeric type
+            formatted_df[column] = formatted_df[column].apply(lambda x: '{:,.2f}'.format(x))
+    return formatted_df
+#########################################################
+def formatted_display(label, value, unit):
+    formatted_value = "<span style='color:green'>{:,.2f}</span>".format(value)  # Format value with comma separator and apply green color
+    display_text = f"{formatted_value} {unit}"  # Combine formatted value and unit
+    st.write(label, display_text, unsafe_allow_html=True)
+#######################################################################################
 Logo=Image.open('SIM-LOGO-02.jpg')
 st.image(Logo,width=700)
 st.markdown("<h2 style='text-align: center; color:#F1F0E5'>Sales Report 2023 </h2>",unsafe_allow_html=True)
@@ -28,8 +48,13 @@ def load_data_from_drive():
     return data
 data = load_data_from_drive()
 Invoices=data
+################# T1 and T2 #############################
+T1PlusT2=Invoices[Invoices['รหัสสินค้า'].astype(str).str.contains('MOLD')]
+T1PlusT2=T1PlusT2[['วันที่','รหัสสินค้า','เลขที่','JOBCODE','มูลค่าสินค้า']]
 
-Invoices[['วันที่','เลขที่','ลูกค้า','ชื่อสินค้า']]=Invoices[['วันที่','เลขที่','ลูกค้า','ชื่อสินค้า']].astype(str)
+##################################### Invoice No T0 ######################################################
+
+Invoices[['วันที่','เลขที่','ลูกค้า','ชื่อสินค้า','JOBCODE']]=Invoices[['วันที่','เลขที่','ลูกค้า','ชื่อสินค้า','JOBCODE']].astype(str)
 Invoices=Invoices[(~Invoices['รหัสสินค้า'].astype(str).str.contains('MOLD-T0'))]
 Invoices=Invoices[(~Invoices['รหัสสินค้า'].astype(str).str.contains('MOLD-T1'))]
 Inv=Invoices[['วันที่','เลขที่','ลูกค้า','ชื่อสินค้า','จำนวน','มูลค่าสินค้า','รหัสสินค้า']]
@@ -99,6 +124,27 @@ TotalMOLD=Invoices[Invoices['รหัสสินค้า'].astype(str).str.co
 Invoices['รหัสสินค้า'].astype(str).str.contains('PART')|
 Invoices['รหัสสินค้า'].astype(str).str.contains('REPAIR')]
 TotalMOLD=TotalMOLD[TotalMOLD['วันที่'].between( ym_input, ym_input2)]
+################ Mold T2 Added ################################
+df = T1PlusT2[T1PlusT2['วันที่'].between( ym_input, ym_input2)]
+# Remove the suffixes from JOBCODE
+df['JOBCODE'] = df['JOBCODE'].str.replace('-T1$', '').str.replace('-T2$', '')
+mold_rows = df[df['รหัสสินค้า'].str.contains('MOLD')]
+mold_t1_rows = df[df['รหัสสินค้า'].str.contains('MOLD-T1')]
+merged_df = pd.merge(mold_rows, mold_t1_rows, on='JOBCODE', suffixes=('_MOLD', '_MOLD-T1'))
+merged_MOLD=merged_df[~merged_df['รหัสสินค้า_MOLD'].str.contains("-T1")]
+# Convert numeric columns to float
+numeric_columns = ['มูลค่าสินค้า_MOLD', 'มูลค่าสินค้า_MOLD-T1']  # Replace with actual column names
+merged_MOLD[numeric_columns] = merged_MOLD[numeric_columns].astype(float)
+
+formatted_df = format_dataframe_columns(merged_MOLD)
+st.write('Mold Sales T1 (Deposit)')
+st.dataframe(formatted_df)
+MoldT2=merged_MOLD['มูลค่าสินค้า_MOLD-T1'].sum()
+TTSales=MoldT2
+############# Display ##############
+formatted_sales = "{:,.2f}".format(TTSales)  # Format sales with comma separator
+display_text = f"<span style='color:green'>{formatted_sales}</span>"  # Add green color
+st.markdown(f"Total Sales Invoices T1: {display_text}", unsafe_allow_html=True)
 ######################## Other ###############################
 TotalOTHER=Invoices[Invoices['ชื่อสินค้า'].str.contains('DENSE')|Invoices['ชื่อสินค้า'].str.contains('RTV')|Invoices['ชื่อสินค้า'].str.contains('ตู้')]
 TotalOTHER=TotalOTHER[TotalOTHER['วันที่'].between( ym_input, ym_input2)]
@@ -108,43 +154,47 @@ SalesCash=SalesCash[['วันที่','มูลค่าสินค้า'
 ############################################################
 ONESIM=Inv[Inv['วันที่'].between( ym_input, ym_input2)]
 ONESIM=ONESIM.groupby('ลูกค้า').agg({'มูลค่าสินค้า':'sum','ชื่อสินค้า':'first'})
-ONESIM
+# data=ONESIM
+# series = pd.Series(data['มูลค่าสินค้า'])
+# # Format Series values with two decimal places
+# formatted_series = series.apply(lambda x: '{:,.2f}'.format(float(x)))
+# # Convert the formatted Series back to a DataFrame
+# formatted_df = pd.DataFrame({'ชื่อสินค้า': data['ชื่อสินค้า'], 'มูลค่าสินค้า': formatted_series})
+# # Display formatted DataFrame in Streamlit
+formatted_df = format_dataframe_columns(ONESIM)
+st.dataframe(formatted_df)
+
 #########################################################
 TotalMoldPM=(TotalMASS['จำนวน']*TotalMASS['Mold-PM']).sum()
 TotalMoldDP=(TotalMASS['จำนวน']*TotalMASS['Mold-DP']).sum()
 TotalSaleCASH=SalesCash['มูลค่าสินค้า'].sum()
-TotalSalesMASS=(TotalMASS['มูลค่าสินค้า'].sum())
+TotalSalesMASS=(TotalMASS['มูลค่าสินค้า'].sum())-(TotalMoldPM+TotalMoldDP)
 TotalSaleSTB=TotalSTB['มูลค่าสินค้า'].sum()
 TotalSalesOTHER=TotalOTHER['มูลค่าสินค้า'].sum()
-TotalSalesMOLD=(TotalMOLD['มูลค่าสินค้า'].sum())
+TotalSalesMOLD=(TotalMOLD['มูลค่าสินค้า'].sum())+(MoldT2+TotalMoldPM+TotalMoldDP)
 TotalSales=(TotalSaleCASH+TotalSalesMASS+TotalSaleSTB+TotalSalesOTHER+TotalSalesMOLD)
-st.write('Total Sales Invoices:',round(TTSales,2))
-st.write('Total MASS BU Sales:',round(TotalSalesMASS,2))
-st.write('Total Steel Bush Sales:',round(TotalSaleSTB,2))
-st.write('Total Mold BU Sales:',round(TotalSalesMOLD,2))
-st.write('Total Mold PM Internal Charged :',round(TotalMoldPM,2))
-st.write('Total Mold DP Income :',round(TotalMoldDP,2))
-st.write('Total Other Sales:',round(TotalSalesOTHER,2))
-st.write('Total Cash:',round(TotalSaleCASH,2))
-st.write('Total One-SIM Sales:',round(TotalSales+TotalSaleCASH,2))
+formatted_display('Total MASS BU Sales:',round(TotalSalesMASS,2),'B')
+formatted_display('Total Steel Bush Sales:',round(TotalSaleSTB,2),'B')
+formatted_display('Total Mold BU Sales:',round(TotalSalesMOLD,2),'B')
+formatted_display('Total Mold BU Sales T1:',round(MoldT2,2),'B')
+formatted_display('Total Mold PM Internal Charged:',round(TotalMoldPM,2),'B')
+formatted_display('Total Mold DP Income:',round(TotalMoldDP,2),'B')
+formatted_display('Total Other Sales:',round(TotalSalesOTHER,2),'B')
+formatted_display('Total Cash:',round(TotalSaleCASH,2),'B')
+formatted_display('Total One-SIM Sales:',round(TotalSales+TotalSaleCASH,2),'B')
 DATASALES=[['One-SIM',TotalSales],['MASS',TotalSalesMASS],['Steel Bush',TotalSaleSTB],['Mold',TotalSalesMOLD],['Other',TotalSalesOTHER]]
 SUMSALES=pd.DataFrame(DATASALES,columns=['Items','AMT'])
 SUMSALES.set_index('Items',inplace=True)
 ############# Target ######################################################
-from pandas.tseries.offsets import BDay
-
 # specify the start and end dates for the date range
 start_date = ym_input
 end_date = ym_input2
-
 # create a pandas date range for the specified date range
 date_range = pd.date_range(start=start_date, end=end_date)
-
 # filter out non-business days using the BDay frequency
 business_days = date_range[date_range.weekday < 5]
-
 # print the resulting number of business days
-Days = len(business_days)
+Days = len(business_days)-4
 Target2023=pd.read_excel('Target-2023.xlsx')
 Target2023=Target2023[Minput]
 Target2023=(Target2023/Days)*COUNT
@@ -166,7 +216,7 @@ try:
     MASSCN = round(TotalMASSCN['มูลค่าสินค้า'].sum(),2)
 except KeyError:
     pass  # do nothing if key error occurs
-st.write('Total Credit Note Details-MASS:', MASSCN)
+formatted_display('Total Credit Note Details-MASS:', MASSCN,'B')
 st.write('---')
 st.write('**Credit Note Details-MOLD**')
 TotalMoldCN = TotalMOLD[TotalMOLD['เลขที่'].str.contains('SR')]
@@ -181,7 +231,7 @@ try:
     MOLDCN = round(TotalMoldCN['มูลค่าสินค้า'].sum(),2)
 except KeyError:
     pass  # do nothing if key error occurs
-st.write('Total Credit Note Details-MOLD:', MOLDCN)
+formatted_display('Total Credit Note Details-MOLD:', MOLDCN,'B')
 st.write('---')
 ##########################################################################
 st.write('**Debit Note Details-MASS**')
@@ -197,7 +247,7 @@ try:
     MASSDN = round(TotalMASSDN['มูลค่าสินค้า'].sum(),2)
 except KeyError:
     pass  # do nothing if key error occurs
-st.write('Total Debit Note Details-MASS:', MASSDN)
+formatted_display('Total Debit Note Details-MASS:', MASSDN,'B')
 st.write('---')
 st.write('**Debit Note Details-MOLD**')
 TotalMoldDN = TotalMOLD[TotalMOLD['เลขที่'].str.contains('DR')]
@@ -212,11 +262,11 @@ try:
     MOLDDN = round(TotalMoldDN['มูลค่าสินค้า'].sum(),2)
 except KeyError:
     pass  # do nothing if key error occurs
-st.write('Total Debit Note Details-MOLD:', MOLDDN)
+formatted_display('Total Debit Note Details-MOLD:', MOLDDN,'B')
 MASSCNDNBL=MASSCN+MASSDN
-st.write('Balance MASS CN/DN:',MASSCNDNBL)
+formatted_display('Balance MASS CN/DN:',MASSCNDNBL,'B')
 MOLDCNDNBL=MOLDCN+MOLDDN
-st.write('Balance MOLD CN/DN:',MOLDCNDNBL)
+formatted_display('Balance MOLD CN/DN:',MOLDCNDNBL,'B')
 st.write('---')
 ############################################################################
 start_date = Minput
@@ -248,7 +298,7 @@ trace2 = go.Scatter(x=categories, y=values2, name='Target', text=labels2, textpo
 
 ############################
 fig = go.Figure(data=[go.Bar(x=categories, y=values, text=labels, textposition='auto')])
-fig = go.Figure(data=[go.Bar(x=categories, y=values2, text=labels2, textposition='auto')])
+# fig = go.Figure(data=[go.Bar(x=categories, y=values2, text=labels2, textposition='auto')])
 # Add a title and axis labels
 data = [trace1, trace2]
 # Create the figure object
