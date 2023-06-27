@@ -41,7 +41,7 @@ st.markdown("<h2 style='text-align: center; color:#F1F0E5'>Sales Report 2023 </h
 ##################
 db=pd.read_excel('Database-2022.xlsx')
 #################
-@st.cache(allow_output_mutation=True)
+# @st.cache(allow_output_mutation=True)
 def load_data_from_drive():
     url="https://docs.google.com/spreadsheets/d/1sUH0WmtfrWbR8FrM33ljebSlW0BWE3w0/export?format=xlsx"
     data=pd.read_excel(url,header=4)
