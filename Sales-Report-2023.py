@@ -188,7 +188,7 @@ TotalSales=(TotalSaleCASH+TotalSalesMASS+TotalSaleSTB+TotalSalesOTHER+TotalSales
 formatted_display('Total MASS BU Sales:',round(TotalSalesMASS,2),'B')
 formatted_display('Total Steel Bush Sales:',round(TotalSaleSTB,2),'B')
 formatted_display('Total Mold BU Sales:',round(TotalSalesMOLD,2),'B')
-formatted_display('Total Mold BU Sales T1:',round(MoldT2,2),'B')
+formatted_display('Total Mold Deposit:',round(MoldT2,2),'B')
 formatted_display('Total Mold PM Internal Charged:',round(TotalMoldPM,2),'B')
 formatted_display('Total Mold DP Income:',round(TotalMoldDP,2),'B')
 formatted_display('Total Other Sales:',round(TotalSalesOTHER,2),'B')
