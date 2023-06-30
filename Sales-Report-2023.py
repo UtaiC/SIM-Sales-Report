@@ -60,7 +60,7 @@ T1PlusT2=T1PlusT2[['วันที่','รหัสสินค้า','เล
 
 Invoices[['วันที่','เลขที่','ลูกค้า','ชื่อสินค้า','JOBCODE']]=Invoices[['วันที่','เลขที่','ลูกค้า','ชื่อสินค้า','JOBCODE']].astype(str)
 Invoices=Invoices[(~Invoices['รหัสสินค้า'].astype(str).str.contains('MOLD-T0'))]
-Invoices=Invoices[(~Invoices['รหัสสินค้า'].astype(str).str.contains('MOLD-T1'))]
+# Invoices=Invoices[(~Invoices['รหัสสินค้า'].astype(str).str.contains('MOLD-T1'))]
 Inv=Invoices[['วันที่','เลขที่','ลูกค้า','ชื่อสินค้า','จำนวน','มูลค่าสินค้า','รหัสสินค้า']]
 Inv=Invoices[Invoices['เลขที่'].str.contains('IV')|Invoices['เลขที่'].str.contains('HS')]
 
@@ -150,7 +150,7 @@ st.dataframe(formatted_df)
 st.write('---')
 st.write('**Mold Sales T1 (Deposit)**')
 
-T1PlusT2=T1PlusT2[T1PlusT2['รหัสสินค้า'].str.contains('MOLD-T1')]
+T1PlusT2=T1PlusT2[T1PlusT2['รหัสสินค้า'].str.contains('MOLD-T0')]
 # Extract the substring before the hyphen in JOBCODE column of ONESIM DataFrame
 ONESIM['JOBCODE'] = ONESIM['JOBCODE'].str.split('-').str[0]
 T1PlusT2['JOBCODE']=T1PlusT2['JOBCODE'].str.split('-').str[0]
