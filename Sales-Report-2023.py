@@ -35,11 +35,8 @@ def formatted_display(label, value, unit):
     display_text = f"{formatted_value} {unit}"  # Combine formatted value and unit
     st.write(label, display_text, unsafe_allow_html=True)
 #######################################################################################
-# col1, col2 = st.columns(2)
-# with col1:
 logo_image = Image.open('SIM-022.jpg')
 st.image(logo_image, width=700)
-# with col2:
 st.header('ONE-SIM Sales Report 2023')
 ##################
 db=pd.read_excel('Database-2022.xlsx')
@@ -149,7 +146,10 @@ st.dataframe(formatted_df)
 ################ Mold T2 Added ################################
 st.write('---')
 st.write('**Mold Sales MOLD-T0 (Deposit)**')
-
+def format_dataframe_columns(df):
+    # Format specific columns
+    df['มูลค่าสินค้า'] = df['มูลค่าสินค้า'].apply(lambda x: '{:,.2f}'.format(x))
+    return df
 T1PlusT2=T1PlusT2[T1PlusT2['รหัสสินค้า'].str.contains('MOLD-T0')]
 # Extract the substring before the hyphen in JOBCODE column of ONESIM DataFrame
 ONESIM['JOBCODE'] = ONESIM['JOBCODE'].str.split('-').str[0]
@@ -159,15 +159,19 @@ T1PlusT2 = pd.merge(T1PlusT2, ONESIM['JOBCODE'], on='JOBCODE', how='right')
 # T1PlusT2=pd.merge(T1PlusT2,ONESIM['JOBCODE'],on='JOBCODE',how='right')
 T1PlusT2=T1PlusT2[['รหัสสินค้า','JOBCODE','มูลค่าสินค้า']]
 T1PlusT2=T1PlusT2.fillna(0)
+T1PlusT2 = T1PlusT2.drop_duplicates()
 T1PlusT2=T1PlusT2[T1PlusT2['มูลค่าสินค้า']!=0]
 T1PlusT2 = T1PlusT2.reset_index(drop=True)
 T1PlusT2.index=T1PlusT2.index+1
-
+MoldT2=T1PlusT2['มูลค่าสินค้า'].sum()
 if T1PlusT2.empty:
     st.write('No Deposit')
 else:
-    st.dataframe(T1PlusT2)
-MoldT2=T1PlusT2['มูลค่าสินค้า'].sum()
+    ###################
+    formatted_df = format_dataframe_columns(T1PlusT2)
+    st.dataframe(formatted_df)
+    ####################
+
 formatted_display('Total Mold Deposit:',round(MoldT2,2),'B')
 ############# Display ##############
 st.write('---')
@@ -332,6 +336,10 @@ st.plotly_chart(fig)
 if st.button("Refresh data"):
     data = load_data_from_drive()
 ###############################################################
+def format_dataframe_columns(df):
+    # Format specific columns
+    df['มูลค่าสินค้า'] = df['มูลค่าสินค้า'].apply(lambda x: '{:,.2f}'.format(x))
+    return df
 st.write('---')
 c1, c2 = st.columns(2)
 with c1:
@@ -353,10 +361,15 @@ with c1:
         matching_rows = PartMASS[mask]
         matching_rows=matching_rows.set_index('วันที่')
         matching_rows.index = pd.to_datetime(matching_rows.index).strftime('%Y-%m-%d')
+        TTPCS=matching_rows['จำนวน'].sum()
+        TTB=matching_rows['มูลค่าสินค้า'].sum()
         if len(matching_rows) > 0:
-            st.write(matching_rows)
-            formatted_display('Total Pcs:',round(matching_rows['จำนวน'].sum()),'Pcs')
-            formatted_display('Total Sales:',round(matching_rows['มูลค่าสินค้า'].sum(),2),'Pcs')
+            ###################
+            formatted_df = format_dataframe_columns(matching_rows)
+            st.dataframe(formatted_df)
+            ####################
+            formatted_display('Total Pcs:',round(TTPCS,2),'Pcs')
+            formatted_display('Total Sales:',round(TTB,2),'Pcs')
         else:
             st.write(f'No matching Part No found for "{PartNo}"')
     else:
@@ -371,6 +384,11 @@ with c2:
     PartMold=PartMold[PartMold['รหัสสินค้า'].str.contains(Product)]
     PartMold = PartMold.set_index('วันที่')
     PartMold.index = pd.to_datetime(PartMold.index).strftime('%Y-%m-%d')
-    PartMold
+    PartMold=PartMold[PartMold['มูลค่าสินค้า']>0]
     TTMold=PartMold['มูลค่าสินค้า'].sum()
+    ###################
+    formatted_df = format_dataframe_columns(PartMold)
+    st.dataframe(formatted_df)
+    ####################
+   
     formatted_display('Total Mold Sales:',round(TTMold,2),'B')
