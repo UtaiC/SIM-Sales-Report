@@ -148,7 +148,7 @@ formatted_df = format_dataframe_columns(ONESIM2)
 st.dataframe(formatted_df)
 ################ Mold T2 Added ################################
 st.write('---')
-st.write('**Mold Sales T1 (Deposit)**')
+st.write('**Mold Sales MOLD-T0 (Deposit)**')
 
 T1PlusT2=T1PlusT2[T1PlusT2['รหัสสินค้า'].str.contains('MOLD-T0')]
 # Extract the substring before the hyphen in JOBCODE column of ONESIM DataFrame
