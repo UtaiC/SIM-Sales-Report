@@ -260,7 +260,7 @@ TotalMASSDN = TotalMASS[TotalMASS['เลขที่'].str.contains('DR')]
 if TotalMASSDN.empty:
     st.write('No Mold Debit Note')
 else:
-    st.daraframe(TotalMASSDN[['ลูกค้า', 'มูลค่าสินค้า']])
+    st.dataframe(TotalMASSDN[['ลูกค้า', 'มูลค่าสินค้า']])
 
 TotalMASSDN = TotalMASSDN[['ลูกค้า', 'มูลค่าสินค้า']].groupby('ลูกค้า').sum()
 MASSDN = 0  # initialize MASSDN to 0
@@ -275,7 +275,7 @@ TotalMoldDN = TotalMOLD[TotalMOLD['เลขที่'].str.contains('DR')]
 if TotalMoldDN.empty:
     st.write('No Mold Debit Note')
 else:
-    st.daraframe(TotalMoldDN[['ลูกค้า', 'มูลค่าสินค้า']])
+    st.dataframe(TotalMoldDN[['ลูกค้า', 'มูลค่าสินค้า']])
 
 TotalMoldDN = TotalMoldDN[['ลูกค้า', 'มูลค่าสินค้า']].groupby('ลูกค้า').sum()
 MOLDDN = 0  # initialize MOLDDN to 0
