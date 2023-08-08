@@ -15,6 +15,7 @@ from datetime import time
 import calendar
 from dateutil import parser
 from pandas.tseries.offsets import BDay
+from dateutil import parser
 
 ############ CSS Format ######################
 
@@ -63,7 +64,7 @@ Inv=Invoices[Invoices['เลขที่'].str.contains('IV')|Invoices['เล�
 
 ###################### Total Invoice Check #################################################
 Inv['มูลค่าสินค้า']= pd.to_numeric(Inv['มูลค่าสินค้า'], errors='coerce')
-Inv['มูลค่าสินค้า'].dropna(0, inplace=True)
+# Inv['มูลค่าสินค้า'].dropna(0, inplace=True)
 TTSales=Inv['มูลค่าสินค้า']
 TTSales=TTSales.sum()
 ###############################
@@ -174,30 +175,30 @@ else:
 
 formatted_display('Total Mold Deposit:',round(MoldT2,2),'B')
 ############# Display ##############
-st.write('---')
-#########################################################
-st.write('**ONE-SIM Sales Summarize**')
-TotalMoldPM=(TotalMASS['จำนวน']*TotalMASS['Mold-PM']).sum()
-TotalMoldDP=(TotalMASS['จำนวน']*TotalMASS['Mold-DP']).sum()
-TotalSaleCASH=SalesCash['มูลค่าสินค้า'].sum()
-TotalSalesMASS=(TotalMASS['มูลค่าสินค้า'].sum())-(TotalMoldPM+TotalMoldDP)
-TotalSaleSTB=TotalSTB['มูลค่าสินค้า'].sum()
-TotalSalesOTHER=TotalOTHER['มูลค่าสินค้า'].sum()
-TotalSalesMOLD=(TotalMOLD['มูลค่าสินค้า'].sum())+(MoldT2+TotalMoldPM+TotalMoldDP)
-TotalSales=(TotalSaleCASH+TotalSalesMASS+TotalSaleSTB+TotalSalesOTHER+TotalSalesMOLD)
-formatted_display('Total MASS BU Sales:',round(TotalSalesMASS,2),'B')
-formatted_display('Total Steel Bush Sales:',round(TotalSaleSTB,2),'B')
-formatted_display('Total Mold BU Sales:',round(TotalSalesMOLD,2),'B')
-formatted_display('Total Mold Deposit:',round(MoldT2,2),'B')
-formatted_display('Total Mold PM Internal Charged:',round(TotalMoldPM,2),'B')
-formatted_display('Total Mold DP Income:',round(TotalMoldDP,2),'B')
-formatted_display('Total Other Sales:',round(TotalSalesOTHER,2),'B')
-formatted_display('Total Cash:',round(TotalSaleCASH,2),'B')
-formatted_display('Total One-SIM Sales:',round(TotalSales+TotalSaleCASH,2),'B')
-DATASALES=[['One-SIM',TotalSales],['MASS',TotalSalesMASS],['Steel Bush',TotalSaleSTB],['Mold',TotalSalesMOLD],['Other',TotalSalesOTHER]]
-SUMSALES=pd.DataFrame(DATASALES,columns=['Items','AMT'])
-SUMSALES.set_index('Items',inplace=True)
-############# Target ######################################################
+# st.write('---')
+# #########################################################
+# st.write('**ONE-SIM Sales Summarize**')
+# TotalMoldPM=(TotalMASS['จำนวน']*TotalMASS['Mold-PM']).sum()
+# TotalMoldDP=(TotalMASS['จำนวน']*TotalMASS['Mold-DP']).sum()
+# TotalSaleCASH=SalesCash['มูลค่าสินค้า'].sum()
+# TotalSalesMASS=(TotalMASS['มูลค่าสินค้า'].sum())-(TotalMoldPM+TotalMoldDP)
+# TotalSaleSTB=TotalSTB['มูลค่าสินค้า'].sum()
+# TotalSalesOTHER=TotalOTHER['มูลค่าสินค้า'].sum()
+# TotalSalesMOLD=(TotalMOLD['มูลค่าสินค้า'].sum())+(MoldT2+TotalMoldPM+TotalMoldDP)
+# TotalSales=(TotalSaleCASH+TotalSalesMASS+TotalSaleSTB+TotalSalesOTHER+TotalSalesMOLD)
+# formatted_display('Total MASS BU Sales:',round(TotalSalesMASS,2),'B')
+# formatted_display('Total Steel Bush Sales:',round(TotalSaleSTB,2),'B')
+# formatted_display('Total Mold BU Sales:',round(TotalSalesMOLD,2),'B')
+# formatted_display('Total Mold Deposit:',round(MoldT2,2),'B')
+# formatted_display('Total Mold PM Internal Charged:',round(TotalMoldPM,2),'B')
+# formatted_display('Total Mold DP Income:',round(TotalMoldDP,2),'B')
+# formatted_display('Total Other Sales:',round(TotalSalesOTHER,2),'B')
+# formatted_display('Total Cash:',round(TotalSaleCASH,2),'B')
+# formatted_display('Total One-SIM Sales:',round(TotalSales+TotalSaleCASH,2),'B')
+# DATASALES=[['One-SIM',TotalSales],['MASS',TotalSalesMASS],['Steel Bush',TotalSaleSTB],['Mold',TotalSalesMOLD],['Other',TotalSalesOTHER]]
+# SUMSALES=pd.DataFrame(DATASALES,columns=['Items','AMT'])
+# SUMSALES.set_index('Items',inplace=True)
+# ############# Target ######################################################
 # specify the start and end dates for the date range
 start_date = ym_input
 end_date = ym_input2
@@ -291,7 +292,30 @@ formatted_display('Balance MASS CN/DN:',MASSCNDNBL,'B')
 MOLDCNDNBL=MOLDCN+MOLDDN
 formatted_display('Balance MOLD CN/DN:',MOLDCNDNBL,'B')
 st.write('---')
-############################################################################
+##### SUMMARIZE SALRES ##################################
+#########################################################
+st.write('**ONE-SIM Sales Summarize**')
+TotalMoldPM=(TotalMASS['จำนวน']*TotalMASS['Mold-PM']).sum()
+TotalMoldDP=(TotalMASS['จำนวน']*TotalMASS['Mold-DP']).sum()
+TotalSaleCASH=SalesCash['มูลค่าสินค้า'].sum()
+TotalSalesMASS=((TotalMASS['มูลค่าสินค้า'].sum())-(TotalMoldPM+TotalMoldDP))+(MASSCNDNBL)
+TotalSaleSTB=TotalSTB['มูลค่าสินค้า'].sum()
+TotalSalesOTHER=TotalOTHER['มูลค่าสินค้า'].sum()
+TotalSalesMOLD=((TotalMOLD['มูลค่าสินค้า'].sum())+(MoldT2+TotalMoldPM+TotalMoldDP))+(MOLDCNDNBL)
+TotalSales=(TotalSaleCASH+TotalSalesMASS+TotalSaleSTB+TotalSalesOTHER+TotalSalesMOLD)
+formatted_display('Total MASS BU Sales:',round(TotalSalesMASS,2),'B')
+formatted_display('Total Steel Bush Sales:',round(TotalSaleSTB,2),'B')
+formatted_display('Total Mold BU Sales:',round(TotalSalesMOLD,2),'B')
+formatted_display('Total Mold Deposit:',round(MoldT2,2),'B')
+formatted_display('Total Mold PM Internal Charged:',round(TotalMoldPM,2),'B')
+formatted_display('Total Mold DP Income:',round(TotalMoldDP,2),'B')
+formatted_display('Total Other Sales:',round(TotalSalesOTHER,2),'B')
+formatted_display('Total Cash:',round(TotalSaleCASH,2),'B')
+formatted_display('Total One-SIM Sales:',round(TotalSales+TotalSaleCASH,2),'B')
+DATASALES=[['One-SIM',TotalSales],['MASS',TotalSalesMASS],['Steel Bush',TotalSaleSTB],['Mold',TotalSalesMOLD],['Other',TotalSalesOTHER]]
+SUMSALES=pd.DataFrame(DATASALES,columns=['Items','AMT'])
+SUMSALES.set_index('Items',inplace=True)
+############# Target ######################################################
 start_date = Minput
 end_date = Minput2
 start_date = parser.parse(start_date)
@@ -299,11 +323,9 @@ end_date = parser.parse(end_date)
 num_months = (end_date.year - start_date.year) * 12 + end_date.month - start_date.month + 1
 
 # Define the data for the bar chart
-categories = ['One-SIM','MASS','Mold','Steel Bush','Cash','Other']
-values = [TotalSales+TotalSaleCASH, TotalSalesMASS,TotalSalesMOLD,TotalSaleSTB,TotalSaleCASH,TotalSalesOTHER]
+categories = ['One-SIM','MASS','Mold','Mold-T0','Steel Bush','Cash','Other']
+values = [TotalSales+TotalSaleCASH, TotalSalesMASS,(TotalSalesMOLD-MoldT2),MoldT2,TotalSaleSTB,TotalSaleCASH,TotalSalesOTHER]
 values2 =Target2023
-
-
 # Use num_months as the monthly factor to multiply the values in values and values2
 monthly_factor = num_months
 for i in range(len(values2)):
@@ -335,12 +357,14 @@ st.plotly_chart(fig)
 
 if st.button("Refresh data"):
     data = load_data_from_drive()
-###############################################################
+st.write('---')
+####################################### ChecKing Fucntions #####################
+st.write('---')
 def format_dataframe_columns(df):
     # Format specific columns
     df['มูลค่าสินค้า'] = df['มูลค่าสินค้า'].apply(lambda x: '{:,.2f}'.format(x))
     return df
-st.write('---')
+###########################
 c1, c2 = st.columns(2)
 with c1:
 
@@ -390,5 +414,4 @@ with c2:
     formatted_df = format_dataframe_columns(PartMold)
     st.dataframe(formatted_df)
     ####################
-   
     formatted_display('Total Mold Sales:',round(TTMold,2),'B')
