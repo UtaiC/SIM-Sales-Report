@@ -44,7 +44,7 @@ logo_image = Image.open('SIM-022.jpg')
 st.image(logo_image, width=700)
 st.header('ONE-SIM Sales Report 2023')
 ##################
-db=pd.read_excel(r'C:\Users\utaie\Desktop\Costing\Budget-2023\Database-2022.xlsx')
+db=pd.read_excel('Database-2022.xlsx')
 ##################### Mold Plan ###########################################
 Mold_Plan=pd.read_excel('Mold-Plan-Oct-2023.xlsx',sheet_name='Oct')
 # Mold_Plan['Customer/Job Number']=Mold_Plan['Customer/Job Number'].fillna('NoN')
