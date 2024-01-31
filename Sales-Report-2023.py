@@ -43,9 +43,6 @@ st.header('SIM Sales Report 2024')
 db=pd.read_excel('Database-2022.xlsx')
 #################
 MoldDP=pd.read_excel('Mold DP-2023.xlsx')
-#################
-CN=pd.read_excel('CN.xlsx')
-DN=pd.read_excel('DN.xlsx')
 ################## Reas File ################
 ############### 2024 #####################
 @st.cache_data 
