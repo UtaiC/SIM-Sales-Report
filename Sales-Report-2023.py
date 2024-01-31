@@ -45,7 +45,7 @@ db=pd.read_excel('Database-2022.xlsx')
 MoldDP=pd.read_excel('Mold DP-2023.xlsx')
 ################## Reas File ################
 ############### 2024 #####################
-@st.cache_data 
+# @st.cache_data 
 def load_data_from_drive():
     url="https://docs.google.com/spreadsheets/d/13GtjhI6mQJ055bNG5lxNYzDwlor5027n/export?format=xlsx"
     data2024=pd.read_excel(url,header=0)
