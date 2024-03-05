@@ -45,7 +45,7 @@ MoldDP=pd.read_excel('Mold DP-2023.xlsx')
 #################
 Mold_PM=pd.read_excel('Mold-PM-List.xlsx')
 ############### 2024 #####################
-@st.cache_data 
+@st.experimental_memo 
 def load_data_from_drive():
     url="https://docs.google.com/spreadsheets/d/13GtjhI6mQJ055bNG5lxNYzDwlor5027n/export?format=xlsx"
     data2024=pd.read_excel(url,header=4)
@@ -54,7 +54,7 @@ data2024 = load_data_from_drive()
 Invoices=data2024
 # Invoices
 ############### Mold DP #####################
-@st.cache_data 
+@st.experimental_memo 
 def load_data_from_drive():
     Moldurl="https://docs.google.com/spreadsheets/d/1fA2OEz8pnLYUzDUFUOGy9ylL_X4RNd_L/export?format=xlsx"
     dataMold=pd.read_excel(Moldurl)
