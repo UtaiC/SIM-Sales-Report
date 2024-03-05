@@ -17,7 +17,6 @@ from dateutil import parser
 from pandas.tseries.offsets import BDay
 from dateutil import parser
 import plotly.graph_objs as go
-
 ############ CSS Format / Style ######################
 with open('streamlit.css') as modi:
     css = f'<style>{modi.read()}</style>'
@@ -43,7 +42,10 @@ st.header('SIM Sales Report 2024')
 db=pd.read_excel('Database-2022.xlsx')
 #################
 MoldDP=pd.read_excel('Mold DP-2023.xlsx')
+#################
+Mold_PM=pd.read_excel('Mold-PM-List.xlsx')
 ############### 2024 #####################
+@st.cache_data 
 def load_data_from_drive():
     url="https://docs.google.com/spreadsheets/d/13GtjhI6mQJ055bNG5lxNYzDwlor5027n/export?format=xlsx"
     data2024=pd.read_excel(url,header=4)
@@ -51,13 +53,22 @@ def load_data_from_drive():
 data2024 = load_data_from_drive()
 Invoices=data2024
 # Invoices
+############### Mold DP #####################
+@st.cache_data 
+def load_data_from_drive():
+    Moldurl="https://docs.google.com/spreadsheets/d/1fA2OEz8pnLYUzDUFUOGy9ylL_X4RNd_L/export?format=xlsx"
+    dataMold=pd.read_excel(Moldurl)
+    return dataMold
+dataMold = load_data_from_drive()
+Mold_DP=dataMold
+# Mold_DP
 ########### Menu Range ####################
 y_map = {
     'Jan': '2024-01-01', 'Feb': '2024-02-01', 'Mar': '2024-03-01', 'Apr': '2024-04-01', 'May': '2024-05-01', 'Jun': '2024-06-01',
     'Jul': '2024-07-01', 'Aug': '2024-08-01', 'Sep': '2024-09-01', 'Oct': '2024-10-01', 'Nov': '2024-11-01', 'Dec': '2024-12-01'
 }
 y_map_range = {
-    'Jan': '2024-01-31', 'Feb': '2024-02-28', 'Mar': '2024-03-31', 'Apr': '2024-04-30', 'May': '2024-05-31', 'Jun': '2024-06-30',
+    'Jan': '2024-01-31', 'Feb': '2024-02-29', 'Mar': '2024-03-31', 'Apr': '2024-04-30', 'May': '2024-05-31', 'Jun': '2024-06-30',
     'Jul': '2024-07-31', 'Aug': '2024-08-31', 'Sep': '2024-09-30', 'Oct': '2024-10-31', 'Nov': '2024-11-30', 'Dec': '2024-12-31'
 }
 
@@ -84,10 +95,11 @@ BU = st.sidebar.selectbox('Select BU',['MASS','Mold','One-SIM'] )
 TotalMASS = filtered[
     (Invoices['ลูกค้า'].str.contains('VALEO') |
     Invoices['ลูกค้า'].str.contains('แครทโค') |
+    Invoices['ลูกค้า'].str.contains('อีเลคโทรลักซ์ ') |
     Invoices['ชื่อสินค้า'].str.contains('PACKING') |
     Invoices['ลูกค้า'].str.contains('เซนทรัล') |
     Invoices['ลูกค้า'].str.contains('โฮมเอ็ก') |
-    Invoices['ลูกค้า'].str.contains('ศิริ') |
+    Invoices['ลูกค้า'].str.contains('ศิริโกมล') |
     Invoices['ลูกค้า'].str.contains('โคชิน') |
     Invoices['รหัสสินค้า'].str.contains('SB')|
     Invoices['รหัสสินค้า'].str.contains('DENSE')) &
@@ -99,15 +111,18 @@ TotalMASS = filtered[
     ~Invoices['เลขที่'].astype(str).str.contains('HS') &
     ~Invoices['รหัสสินค้า'].astype(str).str.contains('SIM-R'))
 ]
+# TotalMASS
 ############################
 MASSDNCN = filtered[
     (Invoices['ลูกค้า'].str.contains('VALEO') |
     Invoices['ลูกค้า'].str.contains('แครทโค') |
+    Invoices['ลูกค้า'].str.contains('อีเลคโทรลักซ์ ') |
     Invoices['ชื่อสินค้า'].str.contains('PACKING') |
     Invoices['ลูกค้า'].str.contains('เซนทรัล') |
     Invoices['ลูกค้า'].str.contains('โฮมเอ็ก') |
     Invoices['ลูกค้า'].str.contains('ศิริ') |
     Invoices['ลูกค้า'].str.contains('โคชิน') |
+    Invoices['ลูกค้า'].str.contains('ชนะชัย') |
     Invoices['รหัสสินค้า'].str.contains('SB')|
     Invoices['เลขที่'].astype(str).str.contains('DR') |
     Invoices['เลขที่'].astype(str).str.contains('SR') |
@@ -119,63 +134,56 @@ MASSDNCN = filtered[
     ~Invoices['รหัสสินค้า'].astype(str).str.contains('SIM-R'))
 ]
 ############# DN ###########
-OtherSales=MASSDNCN[MASSDNCN['เลขที่'].str.contains('HS')]
-OtherSales=OtherSales['มูลค่าสินค้า'].sum()
+OtherSales1=MASSDNCN[MASSDNCN['เลขที่'].str.startswith('HS')]
+# OtherSales1
+OtherSales1=OtherSales1['มูลค่าสินค้า'].sum()
+OtherSales2=MASSDNCN[MASSDNCN['ลูกค้า'].str.contains('ชนะชัย')]
+# OtherSales2
+OtherSales2=OtherSales2['มูลค่าสินค้า'].sum()
+OtherSales=OtherSales1+OtherSales2
 ############# CN ###########
 ChargeBack=MASSDNCN[MASSDNCN['เลขที่'].str.contains('SR')]
 ChargeBack=ChargeBack['มูลค่าสินค้า'].sum()
 TotalMASS['วันที่']=TotalMASS['วันที่'].astype(str)
 SUMMASSP=TotalMASS['มูลค่าสินค้า'].sum()
-TotalMASS=pd.merge(TotalMASS,db,left_on='รหัสสินค้า',right_on='Part_No',how='left')
+TotalMASS=pd.merge(TotalMASS,Mold_PM,left_on='รหัสสินค้า',right_on='Part_No',how='left')
 TotalMASS=pd.merge(TotalMASS,MoldDP[['Part_No','Mold-DP']],left_on='รหัสสินค้า',right_on='Part_No',how='left')
-TotalMASS=TotalMASS.fillna(0)
-TotalMASS=TotalMASS[['วันที่','เลขที่','ลูกค้า','รหัสสินค้า','จำนวน','มูลค่าสินค้า','Mold-PM','Mold-DP']]
-TotalMASS['PM-Cost']=TotalMASS['จำนวน']*TotalMASS['Mold-PM']
-# TotalMASS.set_index('วันที่',inplace=True)
-MASSDisplay=TotalMASS[['วันที่','ลูกค้า','รหัสสินค้า','จำนวน','มูลค่าสินค้า']]
-MASSDisplay.set_index('วันที่',inplace=True)
-
-MoldPM=TotalMASS[['รหัสสินค้า','PM-Cost']]
-MoldPM=MoldPM[MoldPM['PM-Cost']!=0]
-MoldPM=MoldPM.groupby('รหัสสินค้า').sum()
-
-TatalMASSSales=TotalMASS['มูลค่าสินค้า'].sum()
-TatalPM=TotalMASS['PM-Cost'].sum()
-TatalPcs=TotalMASS['จำนวน'].sum()
-
 #################### DP ##############
-TotalMASS['วันที่'] = pd.to_datetime(TotalMASS['วันที่'])
-TotalMASS.loc[TotalMASS['วันที่'] < '2023-04-01', 'จำนวน'] = 0
 TotalMASS['DP-Cost'] = TotalMASS['จำนวน'] * TotalMASS['Mold-DP']  # Direct multiplication
+#################### PM ##############
+TotalMASS['PM-Cost'] = TotalMASS['จำนวน'] * TotalMASS['Mold-PM']
 #################### Steel Bush ###########
 TotalMASS['รหัสสินค้า']=TotalMASS['รหัสสินค้า'].fillna('NoN')
 STB=TotalMASS[TotalMASS['รหัสสินค้า'].str.contains('SB')|TotalMASS['รหัสสินค้า'].str.contains('DENSE')]
 # STB
 STB_AMT=STB['มูลค่าสินค้า'].sum()
-    ################# Display ####################
+################# Display ####################
+TotalMASS=TotalMASS[['วันที่','ลูกค้า','รหัสสินค้า','จำนวน','มูลค่าสินค้า','Mold-DP','DP-Cost','Mold-PM','PM-Cost']]
+TotalMASS.set_index('วันที่',inplace=True)
+# TotalMASS=TotalMASS.groupby('เลขที่').agg({'ลูกค้า':'first','รหัสสินค้า':'first','จำนวน':'sum','มูลค่าสินค้า':'sum','Mold-DP':'mean','DP-Cost':'sum','Mold-PM':'mean','PM-Cost':'sum'})
+############ SUM #############
+TatalDP=TotalMASS['DP-Cost'].sum()
+TatalPM=TotalMASS['PM-Cost'].sum()
+TatalMASSSales=TotalMASS['มูลค่าสินค้า'].sum()
+FinalMASSSales=TatalMASSSales-(TatalPM+TatalDP+ChargeBack)
+########################
 if BU=='MASS':
     st.write('MASS sales AMT')
-    MASSDisplay
-    # formatted_display('Total Sales-Pcs:',round(TatalPcs,2),'Pcs')
+    TotalMASS
     formatted_display('Total Sales-Steel Bush:',round(STB_AMT,2),'B')
-    MASS_Part=TatalMASSSales+STB_AMT+OtherSales
-    formatted_display('Total Sales-MASS Part:',round(MASS_Part,2),'B')
-    formatted_display('Other Salest:',round(OtherSales,2),'B')
-    formatted_display('Total MASS-Sales Baht:',round(TatalMASSSales,2),'B')
-    formatted_display('NG-Claim Cost:',round(-ChargeBack,2),'B')
-    formatted_display('Total PM Cost:',round(-TatalPM,2),'B')
-    TatalDP=TotalMASS['DP-Cost'].sum()
-    formatted_display('Total DP Cost:',round(-TatalDP,2),'B')
-    MoldDP=TotalMASS[['รหัสสินค้า','DP-Cost']]
-    MoldDP=MoldDP[MoldDP['DP-Cost']!=0]
-    MoldDP=MoldDP.groupby('รหัสสินค้า').sum()
-    FinalSales=TatalMASSSales-(TatalPM+TatalDP+ChargeBack)
-    formatted_display('Total Final Balance-Sales AMT:',round(FinalSales,2),'B')
+    formatted_display('Total MASS-Sales Part:',round(TatalMASSSales,2),'B')
+    formatted_display('Other Sales:',round(OtherSales,2),'B')
+    MASS_BU=TatalMASSSales+STB_AMT+OtherSales
+    formatted_display('Total Sales-MASS BU:',round(MASS_BU,2),'B')
+    ################# DP Display #######
+    formatted_display('Total Mold-DP:',round(TatalDP,2),'B')
+    formatted_display('Total Mold-PM:',round(TatalPM,2),'B')
+    formatted_display('Total Final Balance-Sales AMT:',round(FinalMASSSales,2),'B')
     ############ Mass Chart ##############################
     
     # Example data
-    categories = ['TT-MASS-Sales','MASS Part','Steel Bush', 'Mold-PM Cost', 'Mold-DP Cost','NG-Claim','Final Sales AMT']
-    values = [TatalMASSSales,MASS_Part,STB_AMT, -TatalPM, -TatalDP,-ChargeBack,FinalSales]
+    categories = ['MASS-BU','MASS-Parts','Steel Bush','Other','Mold-PM Cost', 'Mold-DP Cost','NG-Claim','Final Sales AMT']
+    values = [MASS_BU,TatalMASSSales,STB_AMT,OtherSales, -TatalPM, -TatalDP,-ChargeBack,FinalMASSSales]
 
     # Format values with commas and two decimal places
     formatted_values = [f'{value:,.2f}' for value in values]
@@ -220,14 +228,26 @@ MoldSales=TotalMoldUnit['มูลค่าสินค้า'].sum()
 MoldPM=TotalMASS['PM-Cost'].sum()
 MoldDP=TotalMASS['DP-Cost'].sum()
 TatalMoldSales=TotalMold['มูลค่าสินค้า'].sum()
-G_TatalMoldSales=TatalMoldSales+MoldDP+MoldPM
+############
+filtered = Mold_DP[
+(Mold_DP['Date'] >= start_date) &
+(Mold_DP['Date'] <= end_date)]
+Mold_DP=filtered
+Mold_DP.set_index('Date',inplace=True)
+MoldDPSales=Mold_DP['AMT'].sum()
+GTT_MoldSales=TatalMoldSales+MoldDPSales+MoldPM
+#################
 if BU=='Mold':
     st.write('Mold sales AMT')
     TotalMold
+    st.write('Mold DP AMT')
+    #########
+    Mold_DP
     ############ Mold 
     TotalMoldUnit=TotalMold[TotalMold['รหัสสินค้า'].str.contains('M2')]
     MoldSales=TotalMoldUnit['มูลค่าสินค้า'].sum()
     formatted_display('Total Mold Sales:',round(MoldSales,2),'B')
+    formatted_display('Total Mold DP:',round(MoldDPSales,2),'B')
     ############ Part
     TotalPART=TotalMold[TotalMold['รหัสสินค้า'].str.contains('SIM-P')]
     TatalPARTSales=TotalPART['มูลค่าสินค้า'].sum()
@@ -239,20 +259,17 @@ if BU=='Mold':
     ############ Mold PM
     MoldPM=TotalMASS['PM-Cost'].sum()
     formatted_display('TotalMold-PM Sales:',round(MoldPM,2),'B')
-    ############ Mold DP
-    MoldDP=TotalMASS['DP-Cost'].sum()
-    formatted_display('TotalMold-DP Sales:',round(MoldDP,2),'B')
     ########### Mold BU SUM ##################
     TatalMoldSales=TotalMold['มูลค่าสินค้า'].sum()
-    G_TatalMoldSales=TatalMoldSales+MoldDP+MoldPM
-    formatted_display('Total Mold BU Sales AMT:',round(G_TatalMoldSales,2),'B')
+    GTT_MoldSales=TatalMoldSales+MoldPM+MoldDPSales
+    formatted_display('Total Mold BU Sales AMT:',round(GTT_MoldSales,2),'B')
     st.write('---')
     formatted_display('Note: Mold Deposit AMT:',round(MoldTOSales,2),'B')
     ############ Mold  Chart ##############################
     
     # Example data
-    categories = ['TT Mold-BU Sales','Mold-Sales','Part-Sales', 'Repair-Sales','Mold-PM','Mold-DP']
-    values = [G_TatalMoldSales,MoldSales,TatalPARTSales, TatalRepSales,MoldPM,MoldDP]
+    categories = ['TT Mold-BU Sales','Mold-Sales','Mold-DP','Part-Sales', 'Repair-Sales','Mold-PM']
+    values = [GTT_MoldSales,MoldSales,MoldDPSales,TatalPARTSales, TatalRepSales,MoldPM]
 
     # Format values with commas and two decimal places
     formatted_values = [f'{value:,.2f}' for value in values]
@@ -274,14 +291,13 @@ if BU=='Mold':
     st.plotly_chart(fig)
     st.write("---")
 ###################### One-SIM Info #########################################
-FinalSales=TatalMASSSales-(MoldPM+MoldDP)
 if BU=='One-SIM':
     st.write('One-SIM sales AMT')
     ############ One-SIM  Chart ##############################
     # Example data
     categories = ['TT One-SIM Sales','Mold-Sales','Mass-Sales']
-    values = [(G_TatalMoldSales+FinalSales),G_TatalMoldSales,FinalSales,]
-
+    values = [(GTT_MoldSales+FinalMASSSales),GTT_MoldSales,FinalMASSSales]
+    
     # Format values with commas and two decimal places
     formatted_values = [f'{value:,.2f}' for value in values]
 
@@ -289,7 +305,8 @@ if BU=='One-SIM':
     fig = go.Figure()
 
     # Add bar trace
-    fig.add_trace(go.Bar(x=categories, y=values, marker_color='#1990CC', text=formatted_values, textposition='auto'))
+    colors = ['#1990CC', '#F36B0D', '#A5FF33']
+    fig.add_trace(go.Bar(x=categories, y=values, marker_color=colors, text=formatted_values, textposition='auto'))
 
     # Update layout
     fig.update_layout(
