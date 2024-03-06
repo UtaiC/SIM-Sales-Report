@@ -1,5 +1,5 @@
 from ast import In, Str
-from operator import inv, truediv
+# from operator import inv, truediv
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import altair as alt
 from datetime import date
-import seaborn as sns
+# import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
 import datetime
@@ -54,7 +54,7 @@ data2024 = load_data_from_drive()
 Invoices=data2024
 # Invoices
 ############### Mold DP #####################
-@st.cache_data
+@st.cache_data 
 def load_data_from_drive():
     Moldurl="https://docs.google.com/spreadsheets/d/1fA2OEz8pnLYUzDUFUOGy9ylL_X4RNd_L/export?format=xlsx"
     dataMold=pd.read_excel(Moldurl)
