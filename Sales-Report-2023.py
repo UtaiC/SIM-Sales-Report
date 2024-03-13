@@ -17,10 +17,27 @@ from dateutil import parser
 from pandas.tseries.offsets import BDay
 from dateutil import parser
 import plotly.graph_objs as go
-############ CSS Format / Style ######################
-with open('streamlit.css') as modi:
-    css = f'<style>{modi.read()}</style>'
-    st.markdown(css, unsafe_allow_html=True)
+################# BG #################################
+# page_bg_img = f"""
+# <style>
+# [data-testid="stAppViewContainer"] > .main {{
+# background-image: url("https://i.postimg.cc/4xgNnkfX/Untitled-design.png");
+# background-size: cover;
+# background-position: center center;
+# background-repeat: no-repeat;
+# background-attachment: local;
+# }}
+# [data-testid="stHeader"] {{
+# background: rgba(1,2,3,4);
+# }}
+# </style>
+# """
+
+# st.markdown(page_bg_img, unsafe_allow_html=True)
+# ############ CSS Format / Style ######################
+# # with open('streamlit.css') as modi:
+# #     css = f'<style>{modi.read()}</style>'
+# #     st.markdown(css, unsafe_allow_html=True)
 ###############################################
 def format_dataframe_columns(df):
     formatted_df = df.copy()  # Create a copy of the DataFrame
@@ -165,6 +182,7 @@ TotalMASS.set_index('วันที่',inplace=True)
 TatalDP=TotalMASS['DP-Cost'].sum()
 TatalPM=TotalMASS['PM-Cost'].sum()
 TatalMASSSales=TotalMASS['มูลค่าสินค้า'].sum()
+
 FinalMASSSales=TatalMASSSales-(TatalPM+TatalDP+ChargeBack)
 ########################
 if BU=='MASS':
@@ -173,6 +191,7 @@ if BU=='MASS':
     formatted_display('Total Sales-Steel Bush:',round(STB_AMT,2),'B')
     formatted_display('Total MASS-Sales Part:',round(TatalMASSSales,2),'B')
     formatted_display('Other Sales:',round(OtherSales,2),'B')
+    TatalMASSSales=TatalMASSSales-STB_AMT
     MASS_BU=TatalMASSSales+STB_AMT+OtherSales
     formatted_display('Total Sales-MASS BU:',round(MASS_BU,2),'B')
     ################# DP Display #######
